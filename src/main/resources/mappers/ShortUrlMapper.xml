@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ggdev.shorturl.mapper.ShortUrlMapper">
+
+    <select id="getAllShortUrl"  resultType="ShortUrlEntity">
+        SELECT url_key     AS urlKey
+             , short_url   AS shortUrl
+             , long_url    AS longUrl
+             , hash_url    AS hashUrl
+             , url_desc    AS urlDesc
+             , use_yn      AS useYN
+             , reg_id      AS regId
+             , reg_dttm    AS regDttm
+             , mod_id      AS modId
+             , mod_dttm    AS modDttm
+        FROM t_short_url
+       ORDER BY mod_dttm DESC
+    </select>
+
+    <select id="getAllShortUrlCnt" parameterType="ShortUrlAdminReq"  resultType="int">
+        SELECT COUNT(1)
+        FROM t_short_url
+        WHERE 1 = 1
+        <if test="urlKey != null and !urlKey.equals('')">
+            AND url_key = #{urlKey}
+        </if>
+        <if test="urlDesc != null and !urlDesc.equals('')">
+            AND url_desc LIKE CONCAT('%', #{urlDesc}, '%')
+        </if>
+        <if test="longUrl != null and !longUrl.equals('')">
+            AND long_url LIKE CONCAT('%', #{longUrl}, '%')
+        </if>
+        <if test="useYN != null and !useYN.equals('')">
+            AND use_yn = #{useYN}
+        </if>
+    </select>
+
+    <!-- 게시물 조회 -->
+    <select id="getShortUrlList" parameterType="ShortUrlAdminReq" resultType="ShortUrlEntity">
+   SELECT url_key     AS urlKey
+        , short_url   AS shortUrl
+        , long_url    AS longUrl
+        , hash_url    AS hashUrl
+        , url_desc    AS urlDesc
+        , use_yn      AS useYN
+        , reg_id      AS regId
+        , reg_dttm    AS regDttm
+        , mod_id      AS modId
+        , mod_dttm    AS modDttm
+        FROM t_short_url
+        WHERE 1 = 1
+        <if test="urlKey != null and !urlKey.equals('')">
+            AND url_key = #{urlKey}
+        </if>
+        <if test="urlDesc != null and !urlDesc.equals('')">
+            AND url_desc LIKE CONCAT('%', #{urlDesc}, '%')
+        </if>
+        <if test="longUrl != null and !longUrl.equals('')">
+            AND long_url LIKE CONCAT('%', #{longUrl}, '%')
+        </if>
+        <if test="useYN != null and !useYN.equals('')">
+            AND use_yn = #{useYN}
+        </if>
+        ORDER BY mod_dttm DESC, url_key ASC
+        LIMIT #{pageNumber}, #{perPageNum}
+    </select>
+
+    <select id="chkUrlKey" parameterType="String" resultType="Int">
+        SELECT COUNT(1) AS CNT
+        FROM t_short_url
+        WHERE url_key = #{urlKey}
+    </select>
+
+
+    <select id="chkHashUrl" parameterType="String" resultType="Int">
+        SELECT COUNT(1) AS CNT
+        FROM t_short_url
+        WHERE hash_url = #{hashUrl}
+    </select>
+
+    <select id="getShortUrlForHash" parameterType="ShortUrlEntity"  resultType="ShortUrlEntity">
+        SELECT url_key     AS urlKey
+             , short_url   AS shortUrl
+             , long_url    AS longUrl
+             , hash_url    AS hashUrl
+             , url_desc    AS urlDesc
+             , use_yn      AS useYN
+             , reg_id      AS regId
+             , reg_dttm    AS regDttm
+             , mod_id      AS modId
+             , mod_dttm    AS modDttm
+        FROM t_short_url
+        WHERE hash_url = #{hashUrl}
+    </select>
+
+    <select id="getShortUrl" parameterType="String"  resultType="ShortUrlEntity">
+        SELECT url_key     AS urlKey
+             , short_url   AS shortUrl
+             , long_url    AS longUrl
+             , hash_url    AS hashUrl
+             , url_desc    AS urlDesc
+             , use_yn      AS useYN
+             , reg_id      AS regId
+             , reg_dttm    AS regDttm
+             , mod_id      AS modId
+             , mod_dttm    AS modDttm
+        FROM t_short_url
+        WHERE url_key = #{url_key}
+    </select>
+
+    <select id="getShortUrlUse" parameterType="String"  resultType="ShortUrlEntity">
+        SELECT url_key     AS urlKey
+             , short_url   AS shortUrl
+             , long_url    AS longUrl
+             , hash_url    AS hashUrl
+             , url_desc    AS urlDesc
+             , use_yn      AS useYN
+             , reg_id      AS regId
+             , reg_dttm    AS regDttm
+             , mod_id      AS modId
+             , mod_dttm    AS modDttm
+        FROM t_short_url
+        WHERE url_key = #{url_key}
+          AND use_yn = 'Y'
+    </select>
+
+
+    <insert id="addShortUrl" parameterType="ShortUrlEntity">
+
+        INSERT INTO t_short_url (
+                                   url_key
+                                 , short_url
+                                 , long_url
+                                 , hash_url
+                                 , url_desc
+                                 , use_yn
+                                 , reg_id
+                                 , reg_dttm
+                                 , mod_id
+                                 , mod_dttm
+        ) VALUES (
+                   #{urlKey}
+                 , #{shortUrl}
+                 , #{longUrl}
+                 , #{hashUrl}
+                 , #{urlDesc}
+                 , #{useYN}
+                 , #{regId}
+                 , NOW()
+                 , #{modId}
+                 , NOW()
+                 )
+    </insert>
+
+
+    <select id="chkHashUrlExcept" parameterType="ShortUrlEntity" resultType="Int">
+        SELECT COUNT(1) AS CNT
+        FROM t_short_url
+        WHERE hash_url = #{hashUrl}
+          AND url_key <![CDATA[ <> ]]> #{urlKey}
+    </select>
+
+    <update id="updateShortUrl" parameterType="ShortUrlEntity">
+        UPDATE t_short_url
+           SET
+           <if test="urlDesc != null and !urlDesc.equals('')">
+               url_desc  = #{urlDesc},
+           </if>
+           <if test="longUrl != null and !longUrl.equals('')">
+               long_url  = #{longUrl},
+           </if>
+           <if test="hashUrl != null and !hashUrl.equals('')">
+               hash_url  = #{hashUrl},
+           </if>
+           <if test="useYN != null and !useYN.equals('')">
+               use_yn    = #{useYN},
+           </if>
+               mod_id    = #{modId},
+               mod_dttm  = NOW()
+         WHERE url_key   = #{urlKey}
+    </update>
+
+    <insert id="insertClickLog" parameterType="String">
+        INSERT INTO t_short_url_log (
+                                        bas_dt
+                                      , url_key
+                                      , long_url
+                                      , header_params
+                                      , pmi
+                                      , referer
+                                      , user_agent
+                                      , sec_ch_ua
+                                      , platform
+        ) VALUES (
+                   TO_CHAR(NOW(),'YYYYMMDD')
+                 , #{urlKey}
+                 , #{longUrl}
+                 , #{headerParams}
+                 , #{pmi}
+                 , #{referer}
+                 , #{userAgent}
+                 , #{secChUa}
+                 , #{platform}
+                 )
+    </insert>
+
+
+    <select id="getLogListCnt" parameterType="ShortUrlAdminReq"  resultType="int">
+        SELECT COUNT(1)
+        FROM t_short_url_log
+        WHERE 1 = 1
+        <if test="urlKey != null and !urlKey.equals('')">
+            AND url_key = #{urlKey}
+        </if>
+        <if test="longUrl != null and !longUrl.equals('')">
+            AND long_url LIKE CONCAT('%', #{longUrl}, '%')
+        </if>
+    </select>
+
+    <!-- Log 조회 -->
+    <select id="getLogList" parameterType="ShortUrlAdminReq" resultType="ShortUrlLog">
+        SELECT  bas_dt               AS basDt
+              , url_key              AS urlKey
+              , long_url             AS longUrl
+              , pmi                  AS pmi
+              , header_params        AS headerParams
+              , referer              AS referer
+              , user_agent           AS userAgent
+              , sec_ch_ua            AS secChUa
+              , platform             AS platform
+              , reg_dttm             AS regDttm
+        FROM t_short_url_log
+        WHERE 1 = 1
+        <if test="urlKey != null and !urlKey.equals('')">
+            AND url_key = #{urlKey}
+        </if>
+        <if test="longUrl != null and !longUrl.equals('')">
+            AND long_url LIKE CONCAT('%', #{longUrl}, '%')
+        </if>
+        ORDER BY reg_dttm DESC, url_key ASC
+        LIMIT #{pageNumber}, #{perPageNum}
+    </select>
+
+</mapper>

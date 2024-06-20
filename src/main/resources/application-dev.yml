@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: shorturl
+  cache:
+    type: redis
+
+
+  datasource:
+    mariadb:
+      hikari:
+        connectionTimeout: 30000
+        maximum-pool-size: 10
+        poolName: HikariCP-mariadb-espdb
+        driver-class-name: org.mariadb.jdbc.Driver
+        jdbc-url: jdbc:mariadb://localhost:13306/ggdev?serverTimezone=UTC&useUnicode=true&characterEncoding=utf8&useSSL=false&autoReconnection=true&allowPublicKeyRetrieval=true&allowMultiQueries=true
+        username: root
+        password: root
+        connection-test-query: SELECT 1
+
+
+env:
+  service:
+    url: http://shorturl.com
+    length: 7
